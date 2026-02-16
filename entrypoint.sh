@@ -18,16 +18,13 @@ hostname "${NETBIOS_NAME}"
 
 # Clean up /etc/hosts to remove Docker's internal IP entry for the hostname
 # This ensures local resolution uses the External IP we inject
-if grep -q "${EXTERNAL_IP}" /etc/hosts; then
-    echo "Host entry already exists."
-else
+if ! grep -q "^${EXTERNAL_IP}.*${NETBIOS_NAME}" /etc/hosts; then
     echo "Patching /etc/hosts..."
-    cp /etc/hosts /etc/hosts.bak
-    # Remove lines matching the hostname to clear internal IP mapping
-    grep -v -i "[[:space:]]${NETBIOS_NAME}$" /etc/hosts.bak > /etc/hosts.new || true
-    # Prepend our External IP mapping
-    echo "${EXTERNAL_IP} ${NETBIOS_NAME}.${REALM} ${NETBIOS_NAME}" | cat - /etc/hosts.new > /etc/hosts
-    rm /etc/hosts.new
+    # Read existing hosts, excluding lines ending with our hostname (internal IP mappings)
+    EXISTING_HOSTS=$(grep -v "[[:space:]]${NETBIOS_NAME}$" /etc/hosts)
+    
+    # Prepend our External IP mapping and overwrite the file
+    echo "${EXTERNAL_IP} ${NETBIOS_NAME}.${REALM} ${NETBIOS_NAME}"$'\n'"${EXISTING_HOSTS}" > /etc/hosts
 fi
 
 # Check if domain is already provisioned
