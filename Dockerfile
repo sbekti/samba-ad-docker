@@ -6,14 +6,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install Samba and related tools
 # dnsutils: for testing DNS resolution (dig/nslookup)
 # iproute2: for network interface inspection (ip/ss)
-RUN apt-get update && apt-get install -y --no-install-recommends 
-    samba 
-    winbind 
-    krb5-user 
-    iproute2 
-    dnsutils 
-    ca-certificates 
-    && apt-get clean 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    samba \
+    winbind \
+    krb5-user \
+    iproute2 \
+    dnsutils \
+    ca-certificates \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Expose necessary ports
